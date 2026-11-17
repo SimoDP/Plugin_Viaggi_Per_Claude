@@ -21,6 +21,7 @@ Metti questa cartella in un repo GitHub (anche privato). Il Dockerfile è in `se
    verso l'IP del server Oracle). Il certificato lo genera Coolify.
 5. **Environment Variables:**
    - `SERPAPI_KEY` = la tua chiave SerpApi
+   - (opzionale) `MCP_ALLOWED_HOSTS` = `viaggi.tuodominio.it` — accetta richieste solo per quel dominio
    - `MCP_TOKEN` = un segreto lungo, generalo con:
      ```bash
      python3 -c "import secrets; print(secrets.token_urlsafe(32))"

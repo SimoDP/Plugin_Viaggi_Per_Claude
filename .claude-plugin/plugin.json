@@ -1,6 +1,6 @@
 {
   "name": "viaggi",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Ricerca viaggio completa e sempre uguale: voli, hotel (Booking vs sito ufficiale), trasferimento aeroporto-hotel, meteo e cosa visitare, con report finale e checklist di cose da verificare a mano.",
   "author": { "name": "Simo" },
   "keywords": ["viaggi", "voli", "hotel", "itinerario"]

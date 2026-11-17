@@ -471,6 +471,18 @@ def main() -> None:
     mcp.settings.streamable_http_path = f"/{token}/mcp"
     mcp.settings.stateless_http = True
     mcp.settings.json_response = True
+    # FastMCP, creato con host di default 127.0.0.1, attiva una protezione
+    # anti DNS-rebinding che accetta solo Host "localhost": dietro al proxy di
+    # Coolify il Host è il tuo dominio e ogni richiesta riceverebbe 421.
+    # Se MCP_ALLOWED_HOSTS è impostata (es. "viaggi.tuodominio.it") accetta solo
+    # quei domini; altrimenti disattiva il controllo (l'accesso è già protetto dal token).
+    from mcp.server.transport_security import TransportSecuritySettings
+
+    hosts = [h.strip() for h in os.environ.get("MCP_ALLOWED_HOSTS", "").split(",") if h.strip()]
+    mcp.settings.transport_security = TransportSecuritySettings(
+        enable_dns_rebinding_protection=bool(hosts),
+        allowed_hosts=hosts + [f"{h}:*" for h in hosts],
+    )
     mcp.run(transport="streamable-http")
 
 
