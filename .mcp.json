@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "viaggi": {
+      "command": "uv",
+      "args": ["run", "--script", "${CLAUDE_PLUGIN_ROOT}/server/viaggi_mcp.py"],
+      "env": { "SERPAPI_KEY": "${SERPAPI_KEY}" }
+    }
+  }
+}
