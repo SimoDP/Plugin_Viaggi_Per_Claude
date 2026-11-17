@@ -31,21 +31,47 @@ e scrivere in cima al report: "Ricerca senza API: prezzi indicativi".
 - Meteo: ricerca web del clima medio del mese.
 - Cosa visitare: Wikivoyage e siti turistici ufficiali della città.
 
-## Step 0 — Parametri
+## Step 0 — Preferenze e intervista
 
-Ricavare dalla richiesta; chiedere in UNA sola domanda solo ciò che manca:
-- destinazione (o idea di destinazione: in quel caso proporre 3 città e far scegliere)
-- date (e flessibilità, default ±0 giorni) e numero di notti
-- aeroporti di partenza (default: `VRN,BGY,VCE,BLQ`)
-- persone (adulti), bagaglio (solo a mano / stiva)
-- budget indicativo totale
+Leggere PRIMA `references/preferenze.md`: sono preferenze fisse, non chiederle.
+
+Poi fare un'intervista con lo strumento di domande a scelta multipla
+(AskUserQuestion), max 2 giri, max 4 domande per giro. Chiedere SOLO ciò che
+la richiesta non dice già. Ogni domanda ha un default: se l'utente salta,
+usare il default e scriverlo in cima al report ("Assunto: ...").
+Se lo strumento non è disponibile, fare le stesse domande in un unico messaggio
+di testo; se nessuno risponde (sessione non presidiata), usare i default.
+
+Se manca la destinazione, chiedere un'idea (mare, città d'arte, natura...)
+e proporre 3 città come opzioni.
+
+**Giro 1 — logistica**
+- Date: fisse / flessibili ±1 giorno / flessibili ±2 giorni (default: fisse)
+- Persone: 1 / 2 / 3 / 4+ (default: 2)
+- Bagaglio: solo zaino sotto il sedile / bagaglio a mano + trolley / stiva
+  (default: bagaglio a mano + trolley)
+- Budget totale: fino a 500 € / 500-1000 € / 1000-1500 € / nessun limite
+  (default: nessun limite, ottimizzare comunque il prezzo)
+
+**Giro 2 — stile del viaggio** (serve per zona, hotel e itinerario)
+- Ritmo: rilassato / equilibrato / intenso (default: equilibrato)
+- Interessi (scelta multipla): storia e musei / cibo / natura e panorami /
+  vita notturna / shopping (default: storia e musei + cibo)
+- Alloggio: hotel / appartamento / indifferente; colazione inclusa importante?
+  (default: hotel, colazione non obbligatoria)
+- Orari voli: ok partenze all'alba e rientri tardi / preferisco orari comodi
+  (default: orari comodi, partenza dopo le 7:00, rientro entro le 23:00)
+
+Riepilogare i parametri in 2-3 righe e partire senza chiedere conferma.
 
 ## Step 1 — Voli (MCP + verifica low cost)
 
-1. `cerca_voli` con tutti gli aeroporti di partenza separati da virgola.
+1. `cerca_voli` con `partenza="VRN,BGY,VCE"` e `max_scali=0`.
    Se le date sono flessibili, ripetere per ogni combinazione di date (max 6 ricerche).
-2. Scartare: scali con attesa > 3 h, arrivi dopo le 23:00 se il trasferimento
-   richiede mezzi pubblici, durate totali > 2× il volo diretto più breve.
+   Solo se NON c'è alcun volo diretto: ripetere con `max_scali=1` e segnalarlo.
+   Applicare la regola di preferenza per Verona di `references/preferenze.md`.
+2. Scartare: voli fuori dagli orari scelti, arrivi dopo le 23:00 se il trasferimento
+   richiede mezzi pubblici; se si è dovuto ammettere uno scalo, attese > 3 h.
 3. Tenere i 5 migliori per prezzo; considerare il bagaglio in stiva se richiesto
    (passare `bagagli_stiva`).
 4. Per A/R, usare `cerca_voli_ritorno` con il `departure_token` dei primi 2-3.
@@ -65,6 +91,7 @@ Ricavare dalla richiesta; chiedere in UNA sola domanda solo ciò che manca:
 
 1. `cerca_hotel` con il quartiere nel testo (es. "hotel Baixa Lisbona"),
    date e adulti, `voto_min` 4.0 di default, `prezzo_max_notte` dal budget.
+   Rispettare la scelta alloggio dell'intervista (hotel/appartamento, colazione).
 2. Tenere i 5 migliori per rapporto prezzo/posizione/voto.
 3. Per ognuno: `prezzi_hotel` con il `property_token`. Confrontare il prezzo
    più basso tra le OTA (Booking, Expedia...) con quello marcato `ufficiale: true`.
@@ -93,7 +120,9 @@ Per i 2-3 hotel finalisti:
 
 1. `guida_wikivoyage` (sezioni "vedere", "fare") e `punti_interesse`
    (attrazioni, musei, storico) attorno al centro.
-2. Costruire un itinerario giorno per giorno raggruppando i luoghi vicini
+2. Filtrare per gli interessi scelti e dosare il numero di tappe sul ritmo
+   (rilassato ~2-3 al giorno, equilibrato ~4, intenso ~6).
+   Costruire un itinerario giorno per giorno raggruppando i luoghi vicini
    (usare le coordinate), con il primo e l'ultimo giorno alleggeriti in base
    agli orari dei voli. Indicare orari di apertura se disponibili.
 3. Per musei/attrazioni che richiedono prenotazione → checklist con il link.
